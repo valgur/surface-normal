@@ -9,6 +9,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_compile_options(-Wall -Wpedantic)
 
-add_executable(${PROJECT_NAME} tool.cpp tool.h)
-target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
+include_directories(${OpenCV_INCLUDE_DIRS})
+link_libraries(${OpenCV_LIBS})
+
+add_library(${PROJECT_NAME}_messylib tool.cpp tool.h)
+
+add_executable(${PROJECT_NAME} clean.cpp)
