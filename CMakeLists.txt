@@ -12,6 +12,6 @@ add_compile_options(-Wall -Wpedantic -Wno-sign-compare)
 include_directories(${OpenCV_INCLUDE_DIRS})
 link_libraries(${OpenCV_LIBS})
 
-add_library(${PROJECT_NAME}_messylib tool.cpp tool.h)
+add_executable(${PROJECT_NAME}_messy tool.cpp tool.h)
 
 add_executable(${PROJECT_NAME} clean.cpp)
