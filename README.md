@@ -6,16 +6,16 @@ The main code is in [here](https://github.com/JiaxiongQ/DeepLiDAR)
 The toolbox consists of some tools you might need for preparing the training data .  
 
 ## calplane-normal  
-The most important one is the  ```Mat calplanenormal(Mat &src);```  
+The most important one is the  ```Mat normals_from_depth(Mat &src);```  
 
 This function calculate the surface normal of the sparce lidar input, it will return a Mat res as the surface normal.
 You should set `fcxcy ,windowsize, threshold` before use the function.  
 
-The following functions are used in `Mat calplanenormal(Mat &src)`:  
+The following functions are used in `Mat normals_from_depth(Mat &src)`:  
 
-`void cvFitPlane(const CvMat* points, float* plane);`  
+`void fit_plane(const CvMat* points, float* plane);`  
 
-`void CallFitPlane(const Mat& depth,int * points,int i,int j,float *plane12);`  
+`void call_fit_plane(const Mat& depth,int * points,int i,int j,float *plane12);`  
 
 `void search_plane_neighbor(Mat &img,int i,int j ,float threhold,int* result);`  
 
@@ -28,7 +28,7 @@ There is a demo in it to show how to use the function.
 If you get any bugs in the clean.hpp,please check the original tool.cpp or pull an issue or sent me an email at
 cindyzhang.yono531@gmail.com  
 ***
-## Specific description about the ```Mat calplanenormal(Mat &src);```  
+## Specific description about the ```Mat normals_from_depth(Mat &src);```  
 input :16bit single channel depth image.
 Output:RGB image(surface normal).
 
