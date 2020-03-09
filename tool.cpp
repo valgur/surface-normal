@@ -42,7 +42,7 @@ void search_plane_neighbor(const Mat &img, int i, int j, float threshold, int *r
 }
 
 // Ax+by+cz=D
-void CallFitPlane(const Mat &depth, const int *points, int i, int j, float *plane12) {
+Plane CallFitPlane(const Mat &depth, const int *points, int i, int j) {
   float f  = fcxcy.f;
   float cx = fcxcy.cx;
   float cy = fcxcy.cy;
@@ -66,11 +66,7 @@ void CallFitPlane(const Mat &depth, const int *points, int i, int j, float *plan
   }
   CvMat *points_mat = cvCreateMat(X_vector.size(), 3, CV_32FC1); //定义用来存储需要拟合点的矩阵
   if (X_vector.size() < 3) {
-    plane12[0] = -1;
-    plane12[1] = -1;
-    plane12[2] = -1;
-    plane12[3] = -1;
-    return;
+    return Plane(-1, -1, -1, -1);
   }
   for (int ii = 0; ii < X_vector.size(); ++ii) {
     points_mat->data.fl[ii * 3 + 0] = X_vector[ii]; //矩阵的值进行初始化   X的坐标值
@@ -78,7 +74,7 @@ void CallFitPlane(const Mat &depth, const int *points, int i, int j, float *plan
     points_mat->data.fl[ii * 3 + 2] = Z_vector[ii]; //
   }
   // float plane12[4] = { 0 };//定义用来储存平面参数的数组
-  cvFitPlane(points_mat, plane12); //调用方程
+  Plane plane12 = cvFitPlane(points_mat); //调用方程
   if (telldirection(plane12, i, j, depth.at<float>(i, j))) {
     plane12[0] = -plane12[0];
     plane12[1] = -plane12[1];
@@ -88,9 +84,10 @@ void CallFitPlane(const Mat &depth, const int *points, int i, int j, float *plan
   Y_vector.clear();
   Z_vector.clear();
   cvReleaseMat(&points_mat);
+  return plane12;
 }
 
-void cvFitPlane(const CvMat *points, float *plane) {
+Plane cvFitPlane(const CvMat *points) {
   // Estimate geometric centroid.
   int nrows       = points->rows;
   int ncols       = points->cols;
@@ -118,6 +115,7 @@ void cvFitPlane(const CvMat *points, float *plane) {
   cvSVD(A, W, nullptr, V, CV_SVD_V_T);
   // Assign plane coefficients by singular std::vector corresponding to smallest
   // singular value.
+  Plane plane;
   plane[ncols] = 0;
   for (int c = 0; c < ncols; c++) {
     plane[c] = V->data.fl[ncols * (ncols - 1) + c];
@@ -129,24 +127,19 @@ void cvFitPlane(const CvMat *points, float *plane) {
   cvReleaseMat(&A);
   cvReleaseMat(&W);
   cvReleaseMat(&V);
+  return plane;
 }
 
-int telldirection(float *abc, int i, int j, float d) {
-  float f  = fcxcy.f;
-  float cx = fcxcy.cx;
-  float cy = fcxcy.cy;
-  float x  = (j - cx) * d * 1.0 / f;
-  float y  = (i - cy) * d * 1.0 / f;
-  float z  = d;
-  // Vec3f camera_center=Vec3f(cx,cy,0);
-  Vec3f cor     = Vec3f(0 - x, 0 - y, 0 - z);
-  Vec3f abcline = Vec3f(abc[0], abc[1], abc[2]);
-  float corner  = cor.dot(abcline);
-  //  float corner =(cx-x)*abc[0]+(cy-y) *abc[1]+(0-z)*abc[2];
-  if (corner >= 0) {
-    return 1;
-  }
-  return 0;
+bool telldirection(Plane plane, int i, int j, float d) {
+  float f      = fcxcy.f;
+  float cx     = fcxcy.cx;
+  float cy     = fcxcy.cy;
+  float x      = (j - cx) * d / f;
+  float y      = (i - cy) * d / f;
+  float z      = d;
+  Vec3f cor    = Vec3f(0 - x, 0 - y, 0 - z);
+  Vec3f normal = Vec3f(plane[0], plane[1], plane[2]);
+  return cor.dot(normal) >= 0;
 }
 
 Mat calplanenormal(const Mat &src) {
@@ -157,7 +150,6 @@ Mat calplanenormal(const Mat &src) {
   int rows = src.rows;
   //  int plane_points[WINDOWSIZE*WINDOWSIZE]={0};
   int *plane_points = new int[WINDOWSIZE * WINDOWSIZE];
-  float *plane12    = new float[4];
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       // for kitti and nyud test
@@ -168,7 +160,7 @@ Mat calplanenormal(const Mat &src) {
       //  if(src.at<float>(i,j)<=4000.0)continue;
 
       search_plane_neighbor(src, i, j, 15.0, plane_points);
-      CallFitPlane(src, plane_points, i, j, plane12);
+      Plane plane12           = CallFitPlane(src, plane_points, i, j);
       Vec3f d                 = Vec3f(plane12[0], plane12[1], plane12[2]);
       Vec3f n                 = normalize(d);
       normals.at<Vec3f>(i, j) = n;
@@ -183,7 +175,6 @@ Mat calplanenormal(const Mat &src) {
     }
   }
 
-  delete[] plane12;
   delete[] plane_points;
   normals.release();
   for (int i = 0; i < rows; i++) {

@@ -4,6 +4,8 @@
 
 using namespace cv;
 
+using Plane = cv::Vec4f;
+
 struct CameraParams {
   float f  = 0;
   float cx = 0;
@@ -12,8 +14,8 @@ struct CameraParams {
 extern CameraParams fcxcy;
 extern int WINDOWSIZE;
 extern float T_threshold;
-void cvFitPlane(const CvMat *points, float *plane);
-void CallFitPlane(const Mat &depth, const int *points, int i, int j, float *plane12);
+Plane cvFitPlane(const CvMat *points);
+Plane CallFitPlane(const Mat &depth, const int *points, int i, int j);
 void search_plane_neighbor(const Mat &img, int i, int j, float threshold, int *result);
-int telldirection(float *abc, int i, int j, float d);
+bool telldirection(Plane plane, int i, int j, float d);
 Mat calplanenormal(const Mat &src);
