@@ -14,7 +14,7 @@ struct CameraParams {
 extern CameraParams fcxcy;
 extern int WINDOWSIZE;
 extern float T_threshold;
-Plane cvFitPlane(const CvMat *points);
+Plane cvFitPlane(const Mat &points);
 Plane CallFitPlane(const Mat &depth, const int *points, int i, int j);
 void search_plane_neighbor(const Mat &img, int i, int j, float threshold, int *result);
 bool telldirection(Plane plane, int i, int j, float d);
