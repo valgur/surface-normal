@@ -8,11 +8,12 @@
 
 Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraParams intrinsics,
                              size_t window_size, float threshold) {
-  float f_inv = 1.f / intrinsics.f;
-  float cx    = intrinsics.cx;
-  float cy    = intrinsics.cy;
-  std::vector<Vec3f> points_vec;
+  float f_inv        = 1.f / intrinsics.f;
+  float cx           = intrinsics.cx;
+  float cy           = intrinsics.cy;
   float center_depth = depth.at<float>(i, j);
+  Mat1f points(window_size * window_size, 3);
+  int count = 0;
   for (int idx = 0; idx < window_size; idx++) {
     for (int idy = 0; idy < window_size; idy++) {
       int row = i - int(window_size / 2) + idx;
@@ -29,17 +30,14 @@ Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraParams intrin
       }
       float x = (col - cx) * z * f_inv;
       float y = (row - cy) * z * f_inv;
-      points_vec.emplace_back(x, y, z);
+
+      points.at<float>(count, 0) = x;
+      points.at<float>(count, 1) = y;
+      points.at<float>(count, 2) = z;
+      count++;
     }
   }
-
-  Mat1f points_mat(points_vec.size(), 3);
-  for (int ii = 0; ii < points_vec.size(); ++ii) {
-    points_mat.at<float>(ii, 0) = points_vec[ii][0];
-    points_mat.at<float>(ii, 1) = points_vec[ii][1];
-    points_mat.at<float>(ii, 2) = points_vec[ii][2];
-  }
-  return points_mat;
+  return points(Rect(0, 0, 3, count));
 }
 
 // Ax+by+cz=D
