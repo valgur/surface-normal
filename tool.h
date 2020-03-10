@@ -14,13 +14,12 @@ struct CameraParams {
   float cy;
 };
 
-Mat calplanenormal(const Mat &src);
+Mat3f normals_from_depth(const Mat &depth, CameraParams intrinsics, int window_size,
+                         float rel_dist_threshold);
 
-std::vector<bool> find_neighbors(const Mat &img, int i, int j, float threshold, size_t window_size);
+Mat3b normals_to_rgb(const Mat &normals);
 
-Plane call_fit_plane(const Mat &depth, const std::vector<bool> &points_mask, int i, int j,
-                     CameraParams intrinsics, int window_size);
+Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraParams intrinsics,
+                             size_t window_size, float threshold);
 
 Plane fit_plane(const Mat &points);
-
-bool telldirection(Plane plane, int i, int j, float d, CameraParams intrinsics);
