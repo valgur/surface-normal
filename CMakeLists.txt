@@ -12,4 +12,4 @@ add_compile_options(-O3 -Wall -Wpedantic -Wno-sign-compare)
 include_directories(${OpenCV_INCLUDE_DIRS})
 link_libraries(${OpenCV_LIBS})
 
-add_executable(${PROJECT_NAME} tool.cpp tool.h)
+add_executable(${PROJECT_NAME} surface_normal.cpp surface_normal.h)

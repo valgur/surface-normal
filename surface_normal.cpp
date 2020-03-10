@@ -4,7 +4,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "tool.h"
+#include "surface_normal.h"
 
 Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraParams intrinsics,
                              size_t window_size, float threshold) {
