@@ -22,4 +22,4 @@ Mat3b normals_to_rgb(const Mat &normals);
 Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraParams intrinsics,
                              size_t window_size, float threshold);
 
-Plane fit_plane(const Mat &points);
+Vec3f fit_plane(const Mat &points);

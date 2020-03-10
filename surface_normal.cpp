@@ -43,38 +43,21 @@ Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraParams intrin
 }
 
 // Ax+by+cz=D
-Plane fit_plane(const Mat &points) {
-  // Estimate geometric centroid.
-  int nrows = points.rows;
-  int ncols = 3;
-  int type  = points.type();
-  Vec3f centroid(0, 0, 0);
-  for (int c = 0; c < ncols; c++) {
-    for (int r = 0; r < nrows; r++) {
-      centroid[c] += points.at<float>(r, c);
-    }
-  }
-  centroid /= static_cast<float>(nrows);
-  // Subtract geometric centroid from each point.
-  Mat points2(nrows, ncols, type);
-  for (int r = 0; r < nrows; r++) {
-    for (int c = 0; c < ncols; c++) {
-      points2.at<float>(r, c) = points.at<float>(r, c) - centroid[c];
-    }
-  }
-  // Evaluate SVD of covariance matrix.
-  Mat A;
-  gemm(points2, points2, 1, noArray(), 0, A, CV_GEMM_A_T);
-  SVD svd(A, SVD::MODIFY_A);
-  // Assign plane coefficients by singular std::vector corresponding to smallest
+Vec3f fit_plane(const Mat &points) {
+  constexpr int ncols = 3;
+  Mat cov, centroid;
+  calcCovarMatrix(points, cov, centroid, CV_COVAR_ROWS | CV_COVAR_NORMAL, CV_32F);
+  SVD svd(cov, SVD::MODIFY_A);
+  // Assign plane coefficients by the singular vector corresponding to the smallest
   // singular value.
-  Plane plane;
-  plane[ncols] = 0;
-  for (int c = 0; c < ncols; c++) {
-    plane[c] = svd.vt.at<float>(ncols - 1, c);
-    plane[ncols] += plane[c] * centroid[c];
-  }
-  return plane;
+  Vec3f normal = normalize(Vec3f(svd.vt.row(ncols - 1)));
+  // Plane plane;
+  // plane[ncols] = 0;
+  // for (int c = 0; c < ncols; c++) {
+  //   plane[c] = svd.vt.at<float>(ncols - 1, c);
+  //   plane[ncols] += plane[c] * centroid.at<float>(0, c);
+  // }
+  return normal;
 }
 
 Mat3f normals_from_depth(const Mat &depth, CameraParams intrinsics, int window_size,
@@ -93,8 +76,7 @@ Mat3f normals_from_depth(const Mat &depth, CameraParams intrinsics, int window_s
         continue;
       }
 
-      Plane plane  = fit_plane(points);
-      Vec3f normal = normalize(Vec3f(plane[0], plane[1], plane[2]));
+      Vec3f normal = fit_plane(points);
       Vec3f cor    = Vec3f(j - intrinsics.cx, i - intrinsics.cy, intrinsics.f);
       if (cor.dot(normal) < 0) {
         normal *= -1;
