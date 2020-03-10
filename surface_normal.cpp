@@ -64,7 +64,7 @@ Plane fit_plane(const Mat &points) {
   }
   // Evaluate SVD of covariance matrix.
   Mat A;
-  gemm(points2, points, 1, noArray(), 0, A, CV_GEMM_A_T);
+  gemm(points2, points2, 1, noArray(), 0, A, CV_GEMM_A_T);
   SVD svd(A, SVD::MODIFY_A);
   // Assign plane coefficients by singular std::vector corresponding to smallest
   // singular value.
