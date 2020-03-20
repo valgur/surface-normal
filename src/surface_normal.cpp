@@ -74,9 +74,9 @@ Mat3f normals_from_depth(const Mat &depth, CameraIntrinsics intrinsics, int wind
         continue;
       }
 
-      Vec3f normal = fit_plane(points);
-      Vec3f cor    = Vec3f(j - intrinsics.cx, i - intrinsics.cy, intrinsics.f);
-      if (cor.dot(normal) < 0) {
+      Vec3f normal    = fit_plane(points);
+      Vec3f direction = Vec3f(j - intrinsics.cx, i - intrinsics.cy, intrinsics.f);
+      if (direction.dot(normal) < 0) {
         normal *= -1;
       }
       normals.at<Vec3f>(i, j) = normal;
