@@ -1,59 +1,44 @@
 # surface-normal
-**This is a tools code repo for CVPR2019 paper 1899: Deep Surface Normal Guided Depth Prediction for Outdoor Secene from Sparce Lidar Data and Single Color Image,by Jiaxiong Qiu, Zhaopeng Cui, Yinda Zhang, Xingdi Zhang, Shuaicheng Liu, Bing Zeng and Marc Pollefeys.**  
+This is a rewrite of [JiaxiongQ/surface-normal](https://github.com/JiaxiongQ/surface-normal) –
+a data preprocessing tool for [JiaxiongQ/DeepLiDAR](https://github.com/JiaxiongQ/DeepLiDAR).
 
-The main code is in [here](https://github.com/JiaxiongQ/DeepLiDAR)
+The `calplanenormal()` from the original code is provided as a setup.py-installable Python
+library with a single function: `surface_normal.normals_from_depth`.
 
-The toolbox consists of some tools you might need for preparing the training data .  
+## Setup
 
-## calplane-normal  
-The most important one is the  ```Mat normals_from_depth(Mat &src);```  
+Build and install the library. Requires CMake and OpenCV. 
+```bash
+python setup.py install
+```
 
-This function calculate the surface normal of the sparce lidar input, it will return a Mat res as the surface normal.
-You should set `fcxcy ,windowsize, threshold` before use the function.  
+## Usage
 
-The following functions are used in `Mat normals_from_depth(Mat &src)`:  
+Takes a depth image with pixel values as depth in meters
+(the format used by the [KITTI depth completion dataset](http://www.cvlibs.net/datasets/kitti/eval_depth.php?benchmark=depth_completion))
+as input and outputs estimated normals as an RGB image.
 
-`void fit_plane(const CvMat* points, float* plane);`  
+```python
+from surface_normal import normals_from_depth
 
-`void call_fit_plane(const Mat& depth,int * points,int i,int j,float *plane12);`  
+# Camera intrinsics
+f = 721.5377
+cx = 596.5593
+cy = 149.854
+normals_from_depth("depth.png", "normals.png",
+    intrinsics=(f, cx, cy),
+    window_size=15,
+    max_rel_depth_diff=0.1
+)
+```
 
-`void search_plane_neighbor(Mat &img,int i,int j ,float threhold,int* result);`  
-
-`int telldirection(float * abc,int i,int j,float d); `  
-
- ***
-So if you need a clean code , you can download the **clean.hpp**.  
-
-There is a demo in it to show how to use the function.
-If you get any bugs in the clean.hpp,please check the original tool.cpp or pull an issue or sent me an email at
-cindyzhang.yono531@gmail.com  
-***
-## Specific description about the ```Mat normals_from_depth(Mat &src);```  
-input :16bit single channel depth image.
-Output:RGB image(surface normal).
-
-general procedures:
-
-set a windowsize=15
-
-for each valid depth point in src:
-
-  search windowsize nearby area, collect all valid depth points in the window
-
-  using least square method to estimate the plane and surface normal.
-  
-  get the normal of the plane as the normal of this depth point
-  
- end
- ***
 ## Citation
 If you use our code or method in your work, please cite the following:  
-`
+```
 @inproceedings{qiu2018deeplidar,
   title={DeepLiDAR: Deep Surface Normal Guided Depth Prediction for Outdoor Scene from Sparse LiDAR Data and Single Color Image},
   author={Qiu, Jiaxiong and Cui, Zhaopeng and Zhang, Yinda and Zhang, Xingdi and Liu, Shuaicheng and Zeng, Bing and Pollefeys, Marc},
   booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
   year={2019}
-}`  
-
-## The suggest environment is g++ 4.1/linux16.04, opencv2.4.9.
+}
+```

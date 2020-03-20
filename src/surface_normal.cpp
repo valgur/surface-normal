@@ -6,8 +6,9 @@
 
 using namespace cv;
 
+// Returns a Nx3 matrix of 3D points surrounding the i,j pixel within the window_size window.
 Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraIntrinsics intrinsics,
-                             size_t window_size, float threshold) {
+                             size_t window_size, float max_rel_depth_diff) {
   float f_inv        = 1.f / intrinsics.f;
   float cx           = intrinsics.cx;
   float cy           = intrinsics.cy;
@@ -25,14 +26,12 @@ Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraIntrinsics in
       if (z == 0) {
         continue;
       }
-      if (abs(z - center_depth) > threshold * center_depth) {
+      if (abs(z - center_depth) > max_rel_depth_diff * center_depth) {
         continue;
       }
-      float x = (col - cx) * z * f_inv;
-      float y = (row - cy) * z * f_inv;
 
-      points.at<float>(count, 0) = x;
-      points.at<float>(count, 1) = y;
+      points.at<float>(count, 0) = (col - cx) * z * f_inv;
+      points.at<float>(count, 1) = (row - cy) * z * f_inv;
       points.at<float>(count, 2) = z;
       count++;
     }
@@ -40,7 +39,8 @@ Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraIntrinsics in
   return points(Rect(0, 0, 3, count));
 }
 
-// Ax+by+cz=D
+// Fits a plane to a set of 3D points.
+// Returns only the plane normal for efficiency.
 Vec3f fit_plane(const Mat &points) {
   constexpr int ncols = 3;
   Mat cov, centroid;
@@ -59,7 +59,7 @@ Vec3f fit_plane(const Mat &points) {
 }
 
 Mat3f normals_from_depth(const Mat &depth, CameraIntrinsics intrinsics, int window_size,
-                         float rel_dist_threshold) {
+                         float max_rel_depth_diff) {
   Mat3f normals = Mat::zeros(depth.size(), CV_32FC3);
   for (int i = 0; i < depth.rows; i++) {
     for (int j = 0; j < depth.cols; j++) {
@@ -68,7 +68,7 @@ Mat3f normals_from_depth(const Mat &depth, CameraIntrinsics intrinsics, int wind
       }
 
       Mat1f points =
-          get_surrounding_points(depth, i, j, intrinsics, window_size, rel_dist_threshold);
+          get_surrounding_points(depth, i, j, intrinsics, window_size, max_rel_depth_diff);
 
       if (points.rows < 3) {
         continue;
@@ -91,12 +91,12 @@ Mat3b normals_to_rgb(const Mat3f &normals) {
   Mat3b res = Mat::zeros(normals.size(), CV_8UC3);
   for (int i = 0; i < normals.rows; i++) {
     for (int j = 0; j < normals.cols; j++) {
-      if (normals.at<Vec3f>(i, j)[0] == 0 && normals.at<Vec3f>(i, j)[1] == 0 &&
-          normals.at<Vec3f>(i, j)[2] == 0)
+      Vec3f normal = normals.at<Vec3f>(i, j);
+      if (normal[0] == 0 && normal[1] == 0 && normal[2] == 0)
         continue;
-      res.at<Vec3b>(i, j)[0] = f2b(normals.at<Vec3f>(i, j)[0]);
-      res.at<Vec3b>(i, j)[2] = f2b(normals.at<Vec3f>(i, j)[1]);
-      res.at<Vec3b>(i, j)[1] = f2b(normals.at<Vec3f>(i, j)[2]);
+      res.at<Vec3b>(i, j)[0] = f2b(normal[0]);
+      res.at<Vec3b>(i, j)[2] = f2b(normal[1]);
+      res.at<Vec3b>(i, j)[1] = f2b(normal[2]);
     }
   }
   return res;
