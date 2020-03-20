@@ -1,12 +1,12 @@
 #include <vector>
 
 #include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
 
 #include "surface_normal.h"
 
-Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraParams intrinsics,
+using namespace cv;
+
+Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraIntrinsics intrinsics,
                              size_t window_size, float threshold) {
   float f_inv        = 1.f / intrinsics.f;
   float cx           = intrinsics.cx;
@@ -58,7 +58,7 @@ Vec3f fit_plane(const Mat &points) {
   return normal;
 }
 
-Mat3f normals_from_depth(const Mat &depth, CameraParams intrinsics, int window_size,
+Mat3f normals_from_depth(const Mat &depth, CameraIntrinsics intrinsics, int window_size,
                          float rel_dist_threshold) {
   Mat3f normals = Mat::zeros(depth.size(), CV_32FC3);
   for (int i = 0; i < depth.rows; i++) {
@@ -87,7 +87,7 @@ Mat3f normals_from_depth(const Mat &depth, CameraParams intrinsics, int window_s
 
 constexpr uint8_t f2b(float x) { return static_cast<uint8_t>(127.5 * (1 - x)); }
 
-Mat3b normals_to_rgb(const Mat &normals) {
+Mat3b normals_to_rgb(const Mat3f &normals) {
   Mat3b res = Mat::zeros(normals.size(), CV_8UC3);
   for (int i = 0; i < normals.rows; i++) {
     for (int j = 0; j < normals.cols; j++) {
@@ -100,22 +100,4 @@ Mat3b normals_to_rgb(const Mat &normals) {
     }
   }
   return res;
-}
-
-int main() {
-  CameraParams intrinsics{};
-  intrinsics.f             = 721.5377;
-  intrinsics.cx            = 596.5593;
-  intrinsics.cy            = 149.854;
-  int window_size          = 15;
-  float rel_dist_threshold = 0.1;
-
-  Mat depth = cv::imread("gt.png", cv::IMREAD_ANYDEPTH | cv::IMREAD_GRAYSCALE);
-  depth.convertTo(depth, CV_32F);
-  Mat3f normals     = normals_from_depth(depth, intrinsics, window_size, rel_dist_threshold);
-  Mat3b normals_rgb = normals_to_rgb(normals);
-  cvtColor(normals_rgb, normals_rgb, COLOR_BGR2RGB);
-  cv::imwrite("gt_out.png", normals_rgb);
-
-  return 0;
 }
