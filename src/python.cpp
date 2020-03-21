@@ -13,9 +13,10 @@ namespace py = pybind11;
 
 using CameraIntrinsicsTuple = std::tuple<double, double, double>;
 
-void normals_from_depth_wrapper(const std::string &depth_in_path, const std::string &normals_out_path,
+void normals_from_depth_wrapper(const std::string &depth_in_path,
+                                const std::string &normals_out_path,
                                 CameraIntrinsicsTuple intrinsics_tuple, int window_size,
-                                float max_rel_depth_diff = 0.1) {
+                                float max_rel_depth_diff) {
   CameraIntrinsics intrinsics{};
   intrinsics.f  = std::get<0>(intrinsics_tuple);
   intrinsics.cx = std::get<1>(intrinsics_tuple);
