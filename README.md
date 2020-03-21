@@ -22,9 +22,9 @@ as input and outputs estimated normals as an RGB image.
 from surface_normal import normals_from_depth
 
 # Camera intrinsics
-f = 721.5377
-cx = 596.5593
-cy = 149.854
+f  = 721.5377
+cx = 609.5593
+cy = 172.8540
 normals_from_depth("depth.png", "normals.png",
     intrinsics=(f, cx, cy),
     window_size=15,
