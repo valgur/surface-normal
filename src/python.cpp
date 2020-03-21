@@ -20,7 +20,14 @@ void normals_from_depth_wrapper(const std::string &depth_in_path, const std::str
   intrinsics.f  = std::get<0>(intrinsics_tuple);
   intrinsics.cx = std::get<1>(intrinsics_tuple);
   intrinsics.cy = std::get<2>(intrinsics_tuple);
-  cv::Mat depth = cv::imread(depth_in_path, cv::IMREAD_ANYDEPTH | cv::IMREAD_GRAYSCALE);
+  cv::Mat depth = cv::imread(depth_in_path, cv::IMREAD_UNCHANGED);
+  if (depth.size().area() == 0) {
+    throw std::runtime_error("Empty image");
+  }
+  if (depth.channels() != 1) {
+    throw std::runtime_error("Not a single-channel depth image. Image has " +
+                             std::to_string(depth.channels()) + " channels.");
+  }
   depth.convertTo(depth, CV_32F);
   cv::Mat3f normals     = normals_from_depth(depth, intrinsics, window_size, max_rel_depth_diff);
   cv::Mat3b normals_rgb = normals_to_rgb(normals);

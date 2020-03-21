@@ -7,7 +7,7 @@
 using namespace cv;
 
 // Returns a Nx3 matrix of 3D points surrounding the i,j pixel within the window_size window.
-Mat1f get_surrounding_points(const Mat &depth, int i, int j, CameraIntrinsics intrinsics,
+Mat1f get_surrounding_points(const Mat1f &depth, int i, int j, CameraIntrinsics intrinsics,
                              size_t window_size, float max_rel_depth_diff) {
   float f_inv        = 1.f / intrinsics.f;
   float cx           = intrinsics.cx;
@@ -58,7 +58,7 @@ Vec3f fit_plane(const Mat &points) {
   return normal;
 }
 
-Mat3f normals_from_depth(const Mat &depth, CameraIntrinsics intrinsics, int window_size,
+Mat3f normals_from_depth(const Mat1f &depth, CameraIntrinsics intrinsics, int window_size,
                          float max_rel_depth_diff) {
   Mat3f normals = Mat::zeros(depth.size(), CV_32FC3);
   for (int i = 0; i < depth.rows; i++) {
