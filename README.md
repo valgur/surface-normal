@@ -32,7 +32,7 @@ normals_from_depth("depth.png", "normals.png",
 )
 ```
 
-### Depth input
+### Depth input example 
 
 ![depth](depth.png)
 
