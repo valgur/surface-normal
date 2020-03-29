@@ -18,8 +18,8 @@ Mat1f get_surrounding_points(const Mat1f &depth, int i, int j, CameraIntrinsics 
   int count = 0;
   for (int idx = 0; idx < window_size; idx++) {
     for (int idy = 0; idy < window_size; idy++) {
-      int row = i - int(window_size / 2) + idx;
-      int col = j - int(window_size / 2) + idy;
+      int row = i - window_size / 2 + idx;
+      int col = j - window_size / 2 + idy;
       if (row >= depth.rows || col >= depth.cols) {
         continue;
       }
