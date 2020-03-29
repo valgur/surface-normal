@@ -14,9 +14,10 @@ python setup.py install
 
 ## Usage
 
-Takes a depth image with pixel values as depth in meters
-(the format used by the [KITTI depth completion dataset](http://www.cvlibs.net/datasets/kitti/eval_depth.php?benchmark=depth_completion))
+Takes a depth image (such as the ones provided with the [KITTI depth completion dataset](http://www.cvlibs.net/datasets/kitti/eval_depth.php?benchmark=depth_completion))
 as input and outputs estimated normals as an RGB image.
+The scale of the input depth does not matter because
+the `max_rel_depth_diff` threshold applied to exclude distant neighboring pixels uses relative depth values.
 
 ```python
 from surface_normal import normals_from_depth
@@ -31,6 +32,13 @@ normals_from_depth("depth.png", "normals.png",
     max_rel_depth_diff=0.1
 )
 ```
+
+### Depth input
+
+![depth](depth.png)
+
+### Normals output
+![normals](normals.png)
 
 ## Citation
 If you use our code or method in your work, please cite the following:  
