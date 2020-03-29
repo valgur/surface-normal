@@ -40,7 +40,7 @@ normals_from_depth("depth.png", "normals.png",
 ![normals](normals.png)
 
 ## Citation
-If you use our code or method in your work, please cite the following:  
+If you use the code or method in your work, please cite the following:  
 ```
 @inproceedings{qiu2018deeplidar,
   title={DeepLiDAR: Deep Surface Normal Guided Depth Prediction for Outdoor Scene from Sparse LiDAR Data and Single Color Image},
