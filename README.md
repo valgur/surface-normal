@@ -16,8 +16,7 @@ python setup.py install
 
 Takes a depth image (such as the ones provided with the [KITTI depth completion dataset](http://www.cvlibs.net/datasets/kitti/eval_depth.php?benchmark=depth_completion))
 as input and outputs estimated normals as an RGB image.
-The scale of the input depth does not matter because
-the `max_rel_depth_diff` threshold applied to exclude distant neighboring pixels uses relative depth values.
+The scale of the depth values does not matter.
 
 ```python
 from surface_normal import normals_from_depth
