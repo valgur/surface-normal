@@ -1,14 +1,15 @@
-#include <vector>
+#include <cmath>
 
 #include <opencv2/core.hpp>
 
 #include "surface_normal.h"
 
 using namespace cv;
+using std::abs;
 
 // Returns a Nx3 matrix of 3D points surrounding the i,j pixel within the window_size window.
 Mat1f get_surrounding_points(const Mat1f &depth, int i, int j, CameraIntrinsics intrinsics,
-                             size_t window_size, float max_rel_depth_diff) {
+                             int window_size, float max_rel_depth_diff) {
   float f_inv        = 1.f / intrinsics.f;
   float cx           = intrinsics.cx;
   float cy           = intrinsics.cy;
