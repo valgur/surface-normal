@@ -32,7 +32,11 @@ void normals_from_depth_wrapper(const std::string &depth_in_path,
   depth.convertTo(depth, CV_32F);
   cv::Mat3f normals_rgb;
   if (use_cuda) {
+#ifdef WITH_CUDA
     normals_rgb = normals_from_depth_cuda(depth, intrinsics, window_size, max_rel_depth_diff);
+#else
+    throw std::runtime_error("module was built without CUDA support, but use_cuda=True");
+#endif
   } else {
     cv::Mat3f normals = normals_from_depth(depth, intrinsics, window_size, max_rel_depth_diff);
     normals_rgb       = normals_to_rgb(normals);
@@ -45,7 +49,14 @@ PYBIND11_MODULE(surface_normal, m) {
   m.doc() = "";
   m.def("normals_from_depth", &normals_from_depth_wrapper, py::arg("depth_in_path"),
         py::arg("normals_out_path"), py::arg("intrinsics"), py::arg("window_size") = 15,
-        py::arg("max_rel_depth_diff") = 0.1, py::arg("use_cuda") = false);
+        py::arg("max_rel_depth_diff") = 0.1,
+        py::arg("use_cuda") =
+#ifdef WITH_CUDA
+            true
+#else
+            false
+#endif
+  );
 
 #ifdef VERSION_INFO
   m.attr("__version__") = VERSION_INFO;
