@@ -7,7 +7,7 @@ library with a single function: `surface_normal.normals_from_depth`.
 
 ## Setup
 
-Build and install the library. Requires CMake and OpenCV. 
+Build and install the library. Requires CMake 3.11+ and OpenCV 3+. Both Python 2 and 3 are supported. 
 ```bash
 python setup.py install
 ```
