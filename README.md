@@ -5,6 +5,8 @@ a data preprocessing tool for [JiaxiongQ/DeepLiDAR](https://github.com/JiaxiongQ
 The `calplanenormal()` from the original code is provided as a setup.py-installable Python
 library with a single function: `surface_normal.normals_from_depth`.
 
+Also uses CUDA for processing, if available, which cuts down the processing time for the full KITTI depth dataset from hours to just minutes.
+
 ## Setup
 
 Build and install the library. Requires CMake 3.11+ and OpenCV 3+. Both Python 2 and 3 are supported. 

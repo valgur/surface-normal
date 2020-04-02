@@ -13,6 +13,11 @@ struct CameraIntrinsics {
 cv::Mat3f normals_from_depth(const cv::Mat1f &depth, CameraIntrinsics intrinsics,
                              int window_size = 15, float max_rel_depth_diff = 0.1);
 
+#ifdef WITH_CUDA
+cv::Mat3b normals_from_depth_cuda(const cv::Mat1f &depth, CameraIntrinsics intrinsics,
+                                  int window_size = 15, float max_rel_depth_diff = 0.1);
+#endif
+
 cv::Mat3b normals_to_rgb(const cv::Mat3f &normals);
 
 cv::Mat1f get_surrounding_points(const cv::Mat1f &depth, int i, int j, CameraIntrinsics intrinsics,
