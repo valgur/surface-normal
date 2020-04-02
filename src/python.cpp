@@ -7,7 +7,7 @@
 
 #include <pybind11/pybind11.h>
 
-#include "surface_normal.h"
+#include "surface_normal.hpp"
 
 namespace py = pybind11;
 

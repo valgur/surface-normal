@@ -2,7 +2,7 @@
 
 #include <opencv2/core.hpp>
 
-#include "surface_normal.h"
+#include "surface_normal.hpp"
 
 using namespace cv;
 using std::abs;

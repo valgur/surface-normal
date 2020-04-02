@@ -9,8 +9,8 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include "surface_normal.h"
-#include "svd3_cuda.h"
+#include "surface_normal.hpp"
+#include "svd3_cuda.hpp"
 
 static inline void _safe_cuda_call(cudaError err, const char *msg, const char *file_name,
                                    const int line_number) {
