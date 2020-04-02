@@ -45,7 +45,7 @@ Mat1f get_surrounding_points(const Mat1f &depth, int i, int j, CameraIntrinsics 
 Vec3f fit_plane(const Mat &points) {
   constexpr int ncols = 3;
   Mat cov, centroid;
-  calcCovarMatrix(points, cov, centroid, CV_COVAR_ROWS | CV_COVAR_NORMAL, CV_32F);
+  calcCovarMatrix(points, cov, centroid, COVAR_ROWS | COVAR_NORMAL, CV_32F);
   SVD svd(cov, SVD::MODIFY_A);
   // Assign plane coefficients by the singular vector corresponding to the smallest
   // singular value.
