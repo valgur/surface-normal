@@ -44,7 +44,7 @@ __global__ void d_depth_to_normals_rgb(const float *depth, uint8_t *normals, int
   Eigen::Vector3f mid{(x_center - cx) * center_depth * f_inv,
                       (y_center - cy) * center_depth * f_inv, center_depth};
   int n                          = 0;
-  Eigen::Vector3f centroid     = Eigen::Vector3f::Zero();
+  Eigen::Vector3f centroid       = Eigen::Vector3f::Zero();
   Eigen::Matrix3f outer_prod_sum = Eigen::Matrix3f::Zero();
   for (int i = -r; i <= r; i++) {
     for (int j = -r; j <= r; j++) {
@@ -96,8 +96,8 @@ __global__ void d_depth_to_normals_rgb(const float *depth, uint8_t *normals, int
   normals[y_center * output_step + 3 * x_center + 2] = f2b(normal(1));
 }
 
-cv::Mat3b normals_from_depth_cuda(const cv::Mat1f &depth, CameraIntrinsics intrinsics, int window_size,
-                               float max_rel_depth_diff) {
+cv::Mat3b normals_from_depth_cuda(const cv::Mat1f &depth, CameraIntrinsics intrinsics,
+                                  int window_size, float max_rel_depth_diff) {
   cv::Mat output(depth.size(), CV_8UC3);
 
   // Calculate total number of bytes of input and output image
