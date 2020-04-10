@@ -51,3 +51,10 @@ If you use the code or method in your work, please cite the following:
   year={2019}
 }
 ```
+
+## Authors
+* [Martin Valgur](https://github.com/valgur) (this rewrite)
+* [JiaxiongQ](https://github.com/JiaxiongQ), [Cindy-xdZhang](https://github.com/Cindy-xdZhang) (original)
+
+## License
+MIT
