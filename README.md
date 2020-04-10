@@ -14,6 +14,20 @@ Build and install the library. Requires CMake 3.11+ and OpenCV 3+. Both Python 2
 python setup.py install
 ```
 
+For CUDA support, the following environment variables might need to be set with appropriate values:
+
+```bash
+export CUDACXX=/usr/local/cuda-10.2/bin/nvcc
+# if the default compiler is not yet supported by CUDA
+export CUDAHOSTCXX=/usr/bin/g++-8
+```
+
+CUDA support also requires Eigen3 to be installed:
+
+```bash
+sudo apt-get install -y libeigen3-dev
+```
+
 ## Usage
 
 Takes a depth image (such as the ones provided with the [KITTI depth completion dataset](http://www.cvlibs.net/datasets/kitti/eval_depth.php?benchmark=depth_completion))
@@ -51,10 +65,3 @@ If you use the code or method in your work, please cite the following:
   year={2019}
 }
 ```
-
-## Authors
-* [Martin Valgur](https://github.com/valgur) (this rewrite)
-* [JiaxiongQ](https://github.com/JiaxiongQ), [Cindy-xdZhang](https://github.com/Cindy-xdZhang) (original)
-
-## License
-MIT
