@@ -23,8 +23,9 @@
 #define _sstar 0.3826834323 // sin(p/8)
 #define EPSILON 1e-6
 
-#include <cuda.h>
 #include <cmath>
+
+#include "surface_normal/cuda_compatibility.hpp"
 
 
 // CUDA's rsqrt seems to be faster than the inlined approximation?
@@ -32,7 +33,7 @@
 __host__ __device__ __forceinline__
 float accurateSqrt(float x)
 {
-  return x * rsqrt(x);
+  return sqrt(x);
 }
 
 __host__ __device__ __forceinline__
