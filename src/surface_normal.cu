@@ -3,8 +3,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <opencv2/core.hpp>
-
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -15,9 +13,12 @@
 static inline void _safe_cuda_call(cudaError err, const char *msg, const char *file_name,
                                    const int line_number) {
   if (err != cudaSuccess) {
-    fprintf(stderr, "%s\n\nFile: %s\n\nLine Number: %d\n\nReason: %s\n", msg, file_name,
-            line_number, cudaGetErrorString(err));
-    exit(EXIT_FAILURE);
+    std::stringstream ss;
+    ss << msg << "\n";
+    ss << "File: " << file_name << "\n";
+    ss << "Line Number: " << line_number << "\n";
+    ss << "Reason: " << cudaGetErrorString(err);
+    throw std::runtime_error(ss.str());
   }
 }
 
@@ -42,13 +43,13 @@ void normals_from_depth_cuda(const ImageView<const T> &depth, ImageView<uint8_t,
   ImageView<uint8_t, 3> d_normals(normals);
 
   // Allocate device memory
-  SAFE_CALL(cudaMalloc(&d_depth.data, d_depth.size_bytes()), "CUDA Malloc Failed");
-  SAFE_CALL(cudaMalloc(&d_normals.data, normals.size_bytes()), "CUDA Malloc Failed");
+  SAFE_CALL(cudaMalloc(&d_depth.ptr, d_depth.size_bytes()), "CUDA Malloc Failed");
+  SAFE_CALL(cudaMalloc(&d_normals.ptr, normals.size_bytes()), "CUDA Malloc Failed");
 
   // Copy data from input image to device memory
-  SAFE_CALL(cudaMemcpy(d_depth.data, depth.data, d_depth.size_bytes(), cudaMemcpyHostToDevice),
+  SAFE_CALL(cudaMemcpy(d_depth.ptr, depth.ptr, d_depth.size_bytes(), cudaMemcpyHostToDevice),
             "CUDA Memcpy Host To Device Failed");
-  SAFE_CALL(cudaMemset(d_normals.data, 0, d_normals.size_bytes()), "CUDA memset normals to 0");
+  SAFE_CALL(cudaMemset(d_normals.ptr, 0, d_normals.size_bytes()), "CUDA memset normals to 0");
 
   // Specify a reasonable block size
   const dim3 block(16, 16);
@@ -64,13 +65,12 @@ void normals_from_depth_cuda(const ImageView<const T> &depth, ImageView<uint8_t,
   SAFE_CALL(cudaDeviceSynchronize(), "Kernel Launch Failed");
 
   // Copy back data from device memory to OpenCV output image
-  SAFE_CALL(
-      cudaMemcpy(normals.data, d_normals.data, d_normals.size_bytes(), cudaMemcpyDeviceToHost),
-      "CUDA Memcpy Host To Device Failed");
+  SAFE_CALL(cudaMemcpy(normals.ptr, d_normals.ptr, d_normals.size_bytes(), cudaMemcpyDeviceToHost),
+            "CUDA Memcpy Host To Device Failed");
 
   // Free the device memory
-  SAFE_CALL(cudaFree(d_depth.data), "CUDA Free Failed");
-  SAFE_CALL(cudaFree(d_normals.data), "CUDA Free Failed");
+  SAFE_CALL(cudaFree(d_depth.ptr), "CUDA Free Failed");
+  SAFE_CALL(cudaFree(d_normals.ptr), "CUDA Free Failed");
 }
 
 #define instantiate(T)                                                                             \
@@ -82,6 +82,8 @@ instantiate(float);
 instantiate(double);
 instantiate(uint8_t);
 instantiate(uint16_t);
+instantiate(uint32_t);
+instantiate(uint64_t);
 instantiate(int8_t);
 instantiate(int16_t);
 instantiate(int32_t);

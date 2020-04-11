@@ -7,6 +7,10 @@
 namespace cv {
 class Mat;
 }
+namespace pybind11 {
+class array;
+struct buffer_info;
+} // namespace pybind11
 
 namespace surface_normal {
 
@@ -14,23 +18,26 @@ namespace surface_normal {
 // Assumes C-style memory layout.
 template <typename T, int channels = 1> class ImageView {
 public:
-  uint8_t *data{};
+  uint8_t *ptr{};
   int width{};
   int height{};
-  int row_step_bytes = width * channels * sizeof(T);
+  int channel_stride = sizeof(T);
+  int col_stride     = channels * channel_stride;
+  int row_stride     = width * col_stride;
 
   __hdi__ size_t size() const { return height * width * channels; }
-  __hdi__ size_t size_bytes() const { return height * row_step_bytes; }
+  __hdi__ size_t size_bytes() const { return height * row_stride; }
 
-  __hdi__ T *row(int row) const { return reinterpret_cast<T *>(data + row * row_step_bytes); }
-
-  __hdi__ T &at(int row_, int col, int channel = 0) const {
-    return row(row_)[col * channels + channel];
+  __hdi__ T &at(int row, int col, int channel = 0) const {
+    return *reinterpret_cast<T *>(ptr + row * row_stride + col * col_stride +
+                                  channel * channel_stride);
   }
 
   ImageView() = default;
-  ImageView(uint8_t *data, int width, int height) : data(data), width(width), height(height) {}
+  ImageView(uint8_t *ptr, int width, int height) : ptr(ptr), width(width), height(height) {}
   explicit ImageView(const cv::Mat &m);
+  explicit ImageView(const pybind11::buffer_info &buf);
+  explicit ImageView(const pybind11::array &array);
 };
 
 } // namespace surface_normal
