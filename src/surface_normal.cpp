@@ -5,7 +5,8 @@
 
 namespace surface_normal {
 
-void normals_from_depth_cpu(const ImageView<const float> &depth, ImageView<uint8_t, 3> &normals,
+template <typename T>
+void normals_from_depth_cpu(const ImageView<const T> &depth, ImageView<uint8_t, 3> &normals,
                             CameraIntrinsics intrinsics, int window_size,
                             float max_rel_depth_diff) {
   for (int row = 0; row < depth.height; row++) {
@@ -15,5 +16,17 @@ void normals_from_depth_cpu(const ImageView<const float> &depth, ImageView<uint8
     }
   }
 }
+
+#define instantiate(T)                                                                             \
+  template void normals_from_depth_cpu(                                                            \
+      const ImageView<const T> &depth, ImageView<uint8_t, 3> &normals,                             \
+      CameraIntrinsics intrinsics, int window_size, float max_rel_depth_diff)
+
+instantiate(float);
+instantiate(double);
+instantiate(uint8_t);
+instantiate(uint16_t);
+instantiate(int32_t);
+instantiate(int64_t);
 
 } // namespace surface_normal

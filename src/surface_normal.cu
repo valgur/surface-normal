@@ -11,8 +11,6 @@
 #include "surface_normal/base.hpp"
 #include "surface_normal_impl.hpp"
 
-using namespace surface_normal;
-
 #define SAFE_CALL(call, msg) _safe_cuda_call((call), (msg), __FILE__, __LINE__)
 static inline void _safe_cuda_call(cudaError err, const char *msg, const char *file_name,
                                    const int line_number) {
@@ -23,10 +21,12 @@ static inline void _safe_cuda_call(cudaError err, const char *msg, const char *f
   }
 }
 
+namespace surface_normal {
+
 // Note: objects like depth and normals cannot be passed by reference to a kernel function
-__global__ void d_depth_to_normals(const ImageView<const float> depth,
-                                   ImageView<uint8_t, 3> normals, CameraIntrinsics intrinsics,
-                                   int r, float max_rel_depth_diff) {
+template <typename T>
+__global__ void d_depth_to_normals(const ImageView<const T> depth, ImageView<uint8_t, 3> normals,
+                                   CameraIntrinsics intrinsics, int r, float max_rel_depth_diff) {
   int col = blockIdx.x * blockDim.x + threadIdx.x;
   int row = blockIdx.y * blockDim.y + threadIdx.y;
   if (col >= depth.width || row >= depth.height)
@@ -34,11 +34,11 @@ __global__ void d_depth_to_normals(const ImageView<const float> depth,
   depth_to_normals_rgb_inner(depth, normals, intrinsics, r, max_rel_depth_diff, row, col);
 }
 
-extern "C" {
-void normals_from_depth_cuda(const ImageView<const float> &depth, ImageView<uint8_t, 3> &normals,
+template <typename T>
+void normals_from_depth_cuda(const ImageView<const T> &depth, ImageView<uint8_t, 3> &normals,
                              CameraIntrinsics intrinsics, int window_size,
                              float max_rel_depth_diff) {
-  ImageView<const float> d_depth(depth);
+  ImageView<const T> d_depth(depth);
   ImageView<uint8_t, 3> d_normals(normals);
 
   // Allocate device memory
@@ -72,4 +72,17 @@ void normals_from_depth_cuda(const ImageView<const float> &depth, ImageView<uint
   SAFE_CALL(cudaFree(d_depth.data), "CUDA Free Failed");
   SAFE_CALL(cudaFree(d_normals.data), "CUDA Free Failed");
 }
-}
+
+#define instantiate(T)                                                                             \
+  template void normals_from_depth_cuda(                                                           \
+      const ImageView<const T> &depth, ImageView<uint8_t, 3> &normals,                             \
+      CameraIntrinsics intrinsics, int window_size, float max_rel_depth_diff)
+
+instantiate(float);
+instantiate(double);
+instantiate(uint8_t);
+instantiate(uint16_t);
+instantiate(int32_t);
+instantiate(int64_t);
+
+} // namespace surface_normal
