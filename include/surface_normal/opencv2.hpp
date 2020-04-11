@@ -48,6 +48,9 @@ cv::Mat3b normals_from_depth(const cv::Mat &depth, CameraIntrinsics intrinsics,
   case (CV_16U):
     call_with_type(uint16_t);
     break;
+  case (CV_16S):
+    call_with_type(int16_t);
+    break;
   case (CV_32S):
     call_with_type(int32_t);
     break;
