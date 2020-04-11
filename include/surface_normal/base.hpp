@@ -1,15 +1,25 @@
 #pragma once
 
 #include <stdexcept>
+#include <tuple>
 
 #include "surface_normal/image_view.hpp"
 
 namespace surface_normal {
 
+// For Python bindings
+using CameraIntrinsicsTuple = std::tuple<double, double, double>;
+
 struct CameraIntrinsics {
   float f;
   float cx;
   float cy;
+
+  CameraIntrinsics(CameraIntrinsicsTuple t) {
+    f  = std::get<0>(t);
+    cx = std::get<1>(t);
+    cy = std::get<2>(t);
+  }
 };
 
 template <typename T>
