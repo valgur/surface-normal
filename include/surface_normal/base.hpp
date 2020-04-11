@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdexcept>
+
 #include "surface_normal/image_view.hpp"
 
 namespace surface_normal {

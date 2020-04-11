@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <stdexcept>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
