@@ -9,8 +9,11 @@ Also uses CUDA for processing, if available, which cuts down the processing time
 
 ## Setup
 
-Build and install the library. Requires CMake 3.11+ and OpenCV 3+. Both Python 2 and 3 are supported. 
+Build and install the library. Requires CMake 3.11+, OpenCV 3+ and Eigen3. Both Python 2 and 3 are supported.
+
 ```bash
+sudo apt-get install cmake libopencv-dev libeigen3-dev
+
 python setup.py install
 ```
 
@@ -20,12 +23,6 @@ For CUDA support, the following environment variables might need to be set with 
 export CUDACXX=/usr/local/cuda-10.2/bin/nvcc
 # if the default compiler is not yet supported by CUDA
 export CUDAHOSTCXX=/usr/bin/g++-8
-```
-
-CUDA support also requires Eigen3 to be installed:
-
-```bash
-sudo apt-get install -y libeigen3-dev
 ```
 
 ## Usage
@@ -46,6 +43,20 @@ normals_from_depth("depth.png", "normals.png",
     window_size=15,
     max_rel_depth_diff=0.1
 )
+```
+
+Alternatively, `numpy.ndarray` input-output is available with `normals_from_depth_numpy()`.
+```python
+from surface_normal import normals_from_depth_numpy
+from skimage.io import imread, imsave
+
+# Camera intrinsics
+f  = 721.5377
+cx = 609.5593
+cy = 172.8540
+depth = imread("depth.png")
+normals = normals_from_depth_numpy(depth, intrinsics=(f, cx, cy), window_size=15, max_rel_depth_diff=0.1)
+imsave("normals.png", normals)
 ```
 
 ### Depth input example 
