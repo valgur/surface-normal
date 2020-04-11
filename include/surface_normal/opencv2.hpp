@@ -22,7 +22,7 @@ template <typename T, int channels> ImageView<T, channels>::ImageView(const cv::
   }
 }
 
-cv::Mat3f normals_from_depth(const cv::Mat &depth, CameraIntrinsics intrinsics,
+cv::Mat3b normals_from_depth(const cv::Mat &depth, CameraIntrinsics intrinsics,
                              int window_size = 15, float max_rel_depth_diff = 0.1,
                              bool use_cuda = USE_CUDA) {
   cv::Mat3b normals(depth.size(), CV_8UC3);
@@ -70,7 +70,7 @@ void normals_from_depth_imgfile(const std::string &depth_in_path,
     throw std::runtime_error("Not a single-channel depth image. Image has " +
                              std::to_string(depth.channels()) + " channels.");
   }
-  cv::Mat3f normals_rgb =
+  cv::Mat3b normals_rgb =
       normals_from_depth(depth, intrinsics, window_size, max_rel_depth_diff, use_cuda);
   cvtColor(normals_rgb, normals_rgb, cv::COLOR_RGB2BGR);
   imwrite(normals_out_path, normals_rgb);
