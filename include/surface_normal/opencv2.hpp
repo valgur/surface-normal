@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <stdexcept>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
