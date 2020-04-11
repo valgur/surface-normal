@@ -16,7 +16,7 @@ __host__ __device__ __forceinline__ uint8_t f2b(float x) {
 }
 
 __host__ __device__ __forceinline__ void
-depth_to_normals_rgb_inner(const ImageView<const float> &depth, ImageView<uint8_t> &normals,
+depth_to_normals_rgb_inner(const ImageView<const float> &depth, ImageView<uint8_t, 3> &normals,
                            const CameraIntrinsics &intrinsics, int radius, float max_rel_depth_diff,
                            int center_row, int center_col) {
   float center_depth = depth.at(center_row, center_col);

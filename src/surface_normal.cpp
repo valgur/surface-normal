@@ -5,7 +5,7 @@
 
 namespace surface_normal {
 
-void normals_from_depth_cpu(const ImageView<const float> &depth, ImageView<uint8_t> &normals,
+void normals_from_depth_cpu(const ImageView<const float> &depth, ImageView<uint8_t, 3> &normals,
                             CameraIntrinsics intrinsics, int window_size,
                             float max_rel_depth_diff) {
   for (int row = 0; row < depth.height; row++) {
