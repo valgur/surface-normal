@@ -11,46 +11,49 @@
 namespace surface_normal {
 
 template <typename T, int channels> ImageView<T, channels>::ImageView(const cv::Mat &m) {
-  data           = const_cast<uint8_t *>(m.ptr());
-  width          = m.cols;
-  height         = m.rows;
-  row_step_bytes = m.step;
-  assert(channels == m.channels());
+  ptr        = const_cast<uint8_t *>(m.ptr());
+  width      = m.cols;
+  height     = m.rows;
+  row_stride = m.step;
+  if (channels != m.channels()) {
+    throw std::runtime_error("Incorrect number of channels. Expected " + std::to_string(channels) +
+                             ", got " + std::to_string(m.channels()));
+  }
 }
 
 cv::Mat3f normals_from_depth(const cv::Mat &depth, CameraIntrinsics intrinsics,
                              int window_size = 15, float max_rel_depth_diff = 0.1,
                              bool use_cuda = USE_CUDA) {
-  cv::Mat3b normals = cv::Mat::zeros(depth.size(), CV_8UC3);
+  cv::Mat3b normals(depth.size(), CV_8UC3);
   ImageView<uint8_t, 3> im_normals(normals);
+
+#define call_with_type(T)                                                                          \
+  normals_from_depth(ImageView<const T>(depth), im_normals, intrinsics, window_size,               \
+                     max_rel_depth_diff, use_cuda)
+
   switch (depth.type()) {
   case (CV_32F):
-    normals_from_depth(ImageView<const float>(depth), im_normals, intrinsics, window_size,
-                       max_rel_depth_diff, use_cuda);
+    call_with_type(float);
     break;
   case (CV_64F):
-    normals_from_depth(ImageView<const double>(depth), im_normals, intrinsics, window_size,
-                       max_rel_depth_diff, use_cuda);
+    call_with_type(double);
     break;
   case (CV_8U):
-    normals_from_depth(ImageView<const uint8_t>(depth), im_normals, intrinsics, window_size,
-                       max_rel_depth_diff, use_cuda);
+    call_with_type(uint8_t);
     break;
   case (CV_8S):
-    normals_from_depth(ImageView<const int8_t>(depth), im_normals, intrinsics, window_size,
-                       max_rel_depth_diff, use_cuda);
+    call_with_type(int8_t);
     break;
   case (CV_16U):
-    normals_from_depth(ImageView<const uint16_t>(depth), im_normals, intrinsics, window_size,
-                       max_rel_depth_diff, use_cuda);
+    call_with_type(uint16_t);
     break;
   case (CV_32S):
-    normals_from_depth(ImageView<const int32_t>(depth), im_normals, intrinsics, window_size,
-                       max_rel_depth_diff, use_cuda);
+    call_with_type(int32_t);
     break;
   default:
     throw std::runtime_error("unsupported cv::Mat type " + std::to_string(depth.type()));
   }
+#undef call_with_type
   return normals;
 }
 
