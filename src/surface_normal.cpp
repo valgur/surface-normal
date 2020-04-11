@@ -26,6 +26,8 @@ instantiate(float);
 instantiate(double);
 instantiate(uint8_t);
 instantiate(uint16_t);
+instantiate(int8_t);
+instantiate(int16_t);
 instantiate(int32_t);
 instantiate(int64_t);
 

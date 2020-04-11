@@ -18,20 +18,38 @@ template <typename T, int channels> ImageView<T, channels>::ImageView(const cv::
   assert(channels == m.channels());
 }
 
-cv::Mat3f normals_from_depth(const cv::Mat1f &depth, CameraIntrinsics intrinsics,
+cv::Mat3f normals_from_depth(const cv::Mat &depth, CameraIntrinsics intrinsics,
                              int window_size = 15, float max_rel_depth_diff = 0.1,
                              bool use_cuda = USE_CUDA) {
   cv::Mat3b normals = cv::Mat::zeros(depth.size(), CV_8UC3);
-  ImageView<const float> im_depth(depth);
   ImageView<uint8_t, 3> im_normals(normals);
-  if (use_cuda) {
-#ifdef WITH_CUDA
-    normals_from_depth_cuda(im_depth, im_normals, intrinsics, window_size, max_rel_depth_diff);
-#else
-    throw std::runtime_error("module was built without CUDA support, but use_cuda=True");
-#endif
-  } else {
-    normals_from_depth_cpu(im_depth, im_normals, intrinsics, window_size, max_rel_depth_diff);
+  switch (depth.type()) {
+  case (CV_32F):
+    normals_from_depth(ImageView<const float>(depth), im_normals, intrinsics, window_size,
+                       max_rel_depth_diff, use_cuda);
+    break;
+  case (CV_64F):
+    normals_from_depth(ImageView<const double>(depth), im_normals, intrinsics, window_size,
+                       max_rel_depth_diff, use_cuda);
+    break;
+  case (CV_8U):
+    normals_from_depth(ImageView<const uint8_t>(depth), im_normals, intrinsics, window_size,
+                       max_rel_depth_diff, use_cuda);
+    break;
+  case (CV_8S):
+    normals_from_depth(ImageView<const int8_t>(depth), im_normals, intrinsics, window_size,
+                       max_rel_depth_diff, use_cuda);
+    break;
+  case (CV_16U):
+    normals_from_depth(ImageView<const uint16_t>(depth), im_normals, intrinsics, window_size,
+                       max_rel_depth_diff, use_cuda);
+    break;
+  case (CV_32S):
+    normals_from_depth(ImageView<const int32_t>(depth), im_normals, intrinsics, window_size,
+                       max_rel_depth_diff, use_cuda);
+    break;
+  default:
+    throw std::runtime_error("unsupported cv::Mat type " + std::to_string(depth.type()));
   }
   return normals;
 }
@@ -48,7 +66,6 @@ void normals_from_depth_imgfile(const std::string &depth_in_path,
     throw std::runtime_error("Not a single-channel depth image. Image has " +
                              std::to_string(depth.channels()) + " channels.");
   }
-  depth.convertTo(depth, CV_32F);
   cv::Mat3f normals_rgb =
       normals_from_depth(depth, intrinsics, window_size, max_rel_depth_diff, use_cuda);
   cvtColor(normals_rgb, normals_rgb, cv::COLOR_RGB2BGR);
