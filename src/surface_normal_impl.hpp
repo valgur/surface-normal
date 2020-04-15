@@ -38,7 +38,7 @@ depth_to_normals_rgb_inner(const ImageView<const T> &depth, ImageView<uint8_t, 3
       int x = center_col + j;
       int y = center_row + i;
 
-      if (x >= depth.width || y >= depth.height) {
+      if (x < 0 || x >= depth.width || y < 0 || y >= depth.height) {
         continue;
       }
 
