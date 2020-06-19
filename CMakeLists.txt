@@ -49,3 +49,8 @@ if(CUDA_FOUND AND WITH_CUDA)
 elseif(${WITH_CUDA})
   message(WARNING "Could not find CUDA")
 endif()
+
+if (BUILD_TEST)
+  add_executable(test src/test.cpp)
+  target_link_libraries(test PRIVATE ${PROJECT_NAME}_gpu ${PROJECT_NAME}_cpu)
+endif()
