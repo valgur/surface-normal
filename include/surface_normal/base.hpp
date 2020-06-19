@@ -15,6 +15,10 @@ struct CameraIntrinsics {
   float cx;
   float cy;
 
+  CameraIntrinsics() = default;
+
+  CameraIntrinsics(float f, float cx, float cy) : f(f), cx(cx), cy(cy) {}
+
   CameraIntrinsics(CameraIntrinsicsTuple t) {
     f  = std::get<0>(t);
     cx = std::get<1>(t);
