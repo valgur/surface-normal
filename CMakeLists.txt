@@ -12,11 +12,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_compile_options(-O3 -Wall -Wpedantic -Wno-sign-compare)
 
+add_library(${PROJECT_NAME}_cpu src/surface_normal.cpp)
+target_link_libraries(${PROJECT_NAME}_cpu PRIVATE Eigen3::Eigen)
+
 include(FetchContent)
 FetchContent_Declare(pybind11 GIT_REPOSITORY https://github.com/pybind/pybind11)
 FetchContent_MakeAvailable(pybind11)
-pybind11_add_module(${PROJECT_NAME} src/python.cpp src/surface_normal.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
+pybind11_add_module(${PROJECT_NAME} src/python.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_cpu)
 
 option(WITH_CUDA "Build with CUDA support included" TRUE)
 find_package(CUDA)
